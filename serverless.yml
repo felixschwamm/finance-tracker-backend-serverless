@@ -1,0 +1,85 @@
+service: finance-tracker-backend
+frameworkVersion: "3"
+
+provider:
+  iam:
+    role: arn:aws:iam::062276541464:role/lambda-finance-backend-role
+  name: aws
+  region: eu-central-1
+  architecture: arm64
+  runtime: nodejs18.x
+  httpApi:
+    cors: true
+    authorizers:
+      someJwtAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_6dDGdyCic
+        audience:
+          - 40u3oh3d4dghv1fuq0usadauau
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    noAuth: true
+
+functions:
+  get-expenses:
+    handler: ./src/index.getExpenses
+    events:
+      - httpApi:
+          method: get
+          path: /expenses
+          authorizer:
+            name: someJwtAuthorizer
+  post-expense:
+    handler: ./src/index.createExpense
+    events:
+      - httpApi:
+          method: post
+          path: /expenses
+          authorizer:
+            name: someJwtAuthorizer
+  delete-expense:
+    handler: ./src/index.deleteExpense
+    events:
+      - httpApi:
+          method: delete
+          path: /expenses/{id}
+          authorizer:
+            name: someJwtAuthorizer
+  update-expense:
+    handler: ./src/index.updateExpense
+    events:
+      - httpApi:
+          method: put
+          path: /expenses/{id}
+          authorizer:
+            name: someJwtAuthorizer
+  get-budget:
+    handler: ./src/index.getBudget
+    events:
+      - httpApi:
+          method: get
+          path: /budget
+          authorizer:
+            name: someJwtAuthorizer
+  update-budget:
+    handler: ./src/index.updateBudget
+    events:
+      - httpApi:
+          method: put
+          path: /budget
+          authorizer:
+            name: someJwtAuthorizer
+  get-overview:
+    handler: ./src/index.getOverview
+    events:
+      - httpApi:
+          method: get
+          path: /overview
+          authorizer:
+            name: someJwtAuthorizer
